@@ -20,6 +20,15 @@ fi
 # Install dependencies for all packages in the workspace
 sudo pnpm i -w --frozen-lockfile
 
+
+# make .get-env.sh executable
+chmod +x ./cicd/get-envs.sh
+
+# run get-env.sh and store env values in variable
+ENV_VALUE=$(./cicd/get-envs.sh /BACKEND/)
+# for each line in env values, prepaend string ENVIROMENT to the line and store in variable
+SERVICE_ENV=$(echo "$ENV_VALUE" | awk '{print "Environment="$0}')
+
 # Write the service file to a temporary directory
 cat > /tmp/tech-talk.service << EOF
 [Unit]
@@ -29,6 +38,7 @@ After=network.target
 [Service]
 Type=simple
 User=ec2-user
+${SERVICE_ENV}
 ExecStart=/.nvm/versions/node/${NODE_VERSION}/bin/node /home/ec2-user/app/apps/backend/index.mjs
 Restart=on-failure
 
