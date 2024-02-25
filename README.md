@@ -16,4 +16,4 @@ Each branch represents a different topic in presentation.
 
 - all the rest of the files are not worth to look and are just use for the demo purposes.
 
-> To run scripts in the `ci` folder, You need to have the AWS CLI installed and configured with the proper permissions.
+> To run scripts in the `cicd` folder, You need to have the AWS CLI installed and configured with the proper permissions.
