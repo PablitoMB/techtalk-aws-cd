@@ -17,6 +17,7 @@ files_to_zip=(
     "./pnpm-lock.yaml"
     "package.json"
     "./cicd/"
+    "./appspec.yml"
 )
 files_to_exclude=(
     "*/node_modules/*"

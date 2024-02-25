@@ -1,0 +1,57 @@
+name: Deploy to AWS
+
+on:
+  workflow_dispatch: {}
+
+env:
+  BUCKET_NAME: techtalk-app
+  APP_NAME: techtalk
+  AWS_REGION: eu-central-1
+  GITHUB_REF: "master"
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
+          role-session-name: github-actions
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Extract hash
+        shell: bash
+        run: echo "##[set-output name=hash;]$(echo ${GITHUB_SHA})"
+        id: extract_hash
+
+      - name: Make script executable
+        run: |
+          chmod +x ./ci/upload-s3.sh
+          chmod +x ./ci/zip-backend.sh
+
+      - name: Zip backend
+        run: |
+          ./ci/zip-backend.sh
+
+      - name: Upload to s3
+        shell: bash
+        run: |
+          ./ci/upload-s3.sh ${{ env.BUCKET_NAME }} ${{ steps.extract_branch.outputs.branch }} ${{ steps.extract_hash.outputs.hash }}
+
+      - name: Deploy to AWS
+        run: |
+          deployment_id=$(aws deploy create-deployment --application-name ${{ env.APP_NAME }} --deployment-group-name ${{ env.APP_NAME }} --s3-location bucket=${{ env.BUCKET_NAME }},key=${{ steps.extract_branch.outputs.branch }}/${{ steps.extract_hash.outputs.hash }}/backend.zip,bundleType=zip --region eu-central-1 --output text)
+          echo "Deployment ID: $deployment_id"
+          aws deploy wait deployment-successful --deployment-id $deployment_id --region eu-central-1
