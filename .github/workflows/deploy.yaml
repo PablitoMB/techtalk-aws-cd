@@ -38,17 +38,17 @@ jobs:
 
       - name: Make script executable
         run: |
-          chmod +x ./ci/upload-s3.sh
-          chmod +x ./ci/zip-backend.sh
+          chmod +x ./cicd/upload-s3.sh
+          chmod +x ./cicd/zip-backend.sh
 
       - name: Zip backend
         run: |
-          ./ci/zip-backend.sh
+          ./cicd/zip-backend.sh
 
       - name: Upload to s3
         shell: bash
         run: |
-          ./ci/upload-s3.sh ${{ env.BUCKET_NAME }} ${{ steps.extract_branch.outputs.branch }} ${{ steps.extract_hash.outputs.hash }}
+          ./cicd/upload-s3.sh ${{ env.BUCKET_NAME }} ${{ steps.extract_branch.outputs.branch }} ${{ steps.extract_hash.outputs.hash }}
 
       - name: Deploy to AWS
         run: |
