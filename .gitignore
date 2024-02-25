@@ -1,0 +1,4 @@
+node_modules
+backend.zip
+.idea
+**/*.env*
