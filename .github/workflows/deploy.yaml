@@ -6,7 +6,7 @@ on:
 env:
   BUCKET_NAME: techtalk-app
   APP_NAME: techtalk
-  AWS_REGION: eu-central-1
+  AWS_REGION: eu-central-1 #popraw to potem
   GITHUB_REF: "master"
 
 jobs:
